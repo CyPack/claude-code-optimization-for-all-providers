@@ -1,5 +1,18 @@
 # Release Notes
 
+## v1.7.0 - 2026-02-21
+
+### Changed
+
+- Reworked top-level `README.md` into a visual welcome page.
+- Added logo row for:
+  - Claude Code (Anthropic)
+  - Kimi
+  - MiniMax
+  - Ollama
+- Improved human-friendly and agent-friendly onboarding sections.
+- Added clearer quick install/quick use flow at top-level.
+
 ## v1.6.0 - 2026-02-21
 
 ### Added

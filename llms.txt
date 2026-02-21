@@ -1,7 +1,7 @@
 # Kimi Claude Code Optimization - LLM Index
 
 Summary:
-Public, sanitized operational handbook for running kimi-for-coding with Claude Code in MCP-heavy workflows.
+Public, sanitized operational handbook for running Kimi/Claude/MiniMax provider switching with Claude Code in MCP-heavy workflows.
 
 Primary docs:
 - README.md
@@ -23,6 +23,7 @@ Key facts:
 - One-command profile switch: cc-provider (kimi/claude/minimax/status)
 - Switch is idempotent and prints previous -> current provider/API summary
 - One-command install available via install-from-github.sh (curl/wget)
+- README now includes logo-based visual onboarding (Claude/Kimi/MiniMax/Ollama)
 - Autonomous orchestration rule enables commandless multi-agent spawn on complex tasks
 - SOR upload scope guard: do not use File case path unless explicitly requested
 

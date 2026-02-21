@@ -1,91 +1,120 @@
 # Kimi Claude Code Optimization
 
-Public, sanitized operations handbook for running `kimi-for-coding` with Claude Code in a stable, MCP-heavy workflow.
+<p align="center">
+  <strong>Human + Agent Friendly Provider Switching for Claude Code</strong><br/>
+  Kimi • Claude • MiniMax • Ollama-aware workflows with credential-safe setup.
+</p>
 
-This repo documents what was tested, what failed, what was fixed, and how to keep the setup reliable in daily use.
+<p align="center">
+  <a href="https://claude.ai" title="Claude Code / Anthropic">
+    <img src="https://cdn.simpleicons.org/anthropic/191919" alt="Claude Code / Anthropic Logo" width="64" height="64" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.kimi.com" title="Kimi">
+    <img src="https://www.kimi.com/favicon.ico" alt="Kimi Logo" width="64" height="64" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.minimax.io" title="MiniMax">
+    <img src="https://cdn.simpleicons.org/minimax/1E1E1E" alt="MiniMax Logo" width="64" height="64" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://ollama.com" title="Ollama">
+    <img src="https://cdn.simpleicons.org/ollama/1E1E1E" alt="Ollama Logo" width="64" height="64" />
+  </a>
+</p>
 
-## What This Repository Does
+<p align="center">
+  <a href="https://github.com/CyPack/kimi-claude-code-optimization/blob/main/docs/INSTALLATION.md">Install Guide</a>
+  ·
+  <a href="https://github.com/CyPack/kimi-claude-code-optimization/blob/main/docs/PROFILE_SWITCHING.md">Switch Guide</a>
+  ·
+  <a href="https://github.com/CyPack/kimi-claude-code-optimization/blob/main/AGENTS.md">Agent Rules</a>
+</p>
 
-- Captures a real Kimi + Claude Code integration runbook.
-- Documents known failure modes and verified mitigations.
-- Provides repeatable verification commands.
-- Ships a safe provider switch script for `Kimi <-> Claude <-> MiniMax` profile toggling.
-- Includes idempotent switch behavior with clear transition notifications.
-- Preserves troubleshooting history in a clean, shareable form.
-- Exposes agent-friendly metadata so AI tools can parse and reason over the repo quickly.
+## Why This Repo
 
-## Verified Outcomes
+- Gives you one-command provider switching for Claude Code.
+- Keeps setup credential-safe and backup-first.
+- Works for both humans and autonomous agents.
+- Documents real failure modes and tested mitigations.
 
-- Claude Code runtime pinned to `kimi-for-coding`.
-- MCP tooling available and validated for operational flows.
-- Known `ToolSearch -> tool_reference` 400 path identified and mitigated.
-- Stable SOR upload path validated with `VoorinfraAPIServer`.
-- Scope guard documented so normal SOR upload flow does not touch `input/File case/` unless explicitly requested.
-- Autonomous orchestration rule added for commandless multi-agent spawn on complex tasks.
+## Quick Install
 
-## Who This Is For
+Local clone install:
 
-- Engineers running Claude Code via Kimi endpoint.
-- Teams using MCP-first or agent-heavy workflows.
-- Anyone needing a practical troubleshooting baseline instead of theory.
+```bash
+bash scripts/install-switch.sh
+```
 
-## Quick Start
+One-command remote install:
 
-1. Read `docs/README.md` for current state snapshot.
-2. Read `docs/LESSONS.md` for failure patterns and fixes.
-3. Read `docs/ACTIONS_LOG.md` for chronology and validation evidence.
-4. Read `docs/BACKUPS.md` for backup and restore references.
-5. Check `AGENTS.md` and `agent-manifest.json` if you are an AI agent/tool.
-6. Install switch commands:
-   - Local clone install:
-     - `bash scripts/install-switch.sh`
-   - One-command remote install:
-     - `bash -c "$(curl -fsSL https://raw.githubusercontent.com/CyPack/kimi-claude-code-optimization/main/scripts/install-from-github.sh)"`
-7. Use `scripts/cc-provider` (or installed `cc-provider`) for one-command profile switch:
-   - `cc-provider status`
-   - `cc-provider kimi`
-   - `cc-provider claude`
-   - `cc-provider minimax` (or `cc-provider mini`)
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/CyPack/kimi-claude-code-optimization/main/scripts/install-from-github.sh)"
+```
+
+## Quick Use
+
+```bash
+cc-provider status
+cc-provider kimi
+cc-provider claude
+cc-provider minimax
+```
+
+Alias commands:
+
+```bash
+cc-kimi
+cc-claude
+cc-mini
+cc-minimax
+```
+
+## Human-Friendly Behavior
+
+- If you are already on target profile, it prints a no-op notice.
+  - Example: `CC zaten su an kimi kullaniyor.`
+- On real switch, it prints transition summary:
+  - previous provider/API
+  - current provider/API
+- Every switch creates rollback backup under:
+  - `$HOME/.claude/backups/provider-switch-YYYYmmdd-HHMMSS-XXXXXX/`
+
+## Agent-Friendly Contract
+
+Agents should follow this protocol:
+
+1. Run `cc-provider <kimi|claude|minimax>`.
+2. Run `cc-provider status`.
+3. Return profile, model, ToolSearch state, and transition summary.
+4. If API key warning appears, report warning without inventing credentials.
 
 ## Repository Map
 
-- `docs/README.md`: effective runtime state and stable command patterns
-- `docs/ACTIONS_LOG.md`: step-by-step operational history
-- `docs/LESSONS.md`: troubleshooting playbook and anti-regression lessons
-- `docs/BACKUPS.md`: backup artifacts and restore snippets
-- `docs/SWARM_OPTIMIZATION.md`: Kimi-specific swarm/spawn/orchestration tuning
-- `docs/PROFILE_SWITCHING.md`: safe Claude/Kimi/MiniMax switching and auth-conflict prevention
 - `docs/INSTALLATION.md`: install/uninstall and external CLI setup
-- `RELEASE_NOTES.md`: change history for this repository
-- `AGENTS.md`: explicit instructions and constraints for AI agents
-- `agent-manifest.json`: machine-readable capability/profile metadata
-- `llms.txt`: compact index for LLM retrieval workflows
-- `scripts/install-switch.sh`: local installer (clone-based)
-- `scripts/install-from-github.sh`: one-command installer (curl/wget)
+- `docs/PROFILE_SWITCHING.md`: safe switch behavior and notifications
+- `docs/README.md`: operational state snapshot
+- `docs/LESSONS.md`: troubleshooting patterns
+- `docs/ACTIONS_LOG.md`: chronological change evidence
+- `docs/BACKUPS.md`: backup and restore references
+- `docs/SWARM_OPTIMIZATION.md`: Kimi-specific orchestration notes
+- `scripts/cc-provider`: main switch utility
+- `scripts/install-switch.sh`: local installer
+- `scripts/install-from-github.sh`: remote one-command installer
+- `AGENTS.md`: explicit agent behavior guidance
+- `agent-manifest.json`: machine-readable capabilities
+- `llms.txt`: compact retrieval index
 
-## Security and Privacy
+## Security
 
-- No API keys, tokens, passwords, or raw credentials are stored.
-- Absolute local paths are normalized to `$HOME` where possible.
-- This repository contains operational metadata, not secrets.
+- No API keys or raw credentials are stored in this repository.
+- Scripts only manage local `~/.claude` config and profile stash files.
+- Provider secrets are kept in local profile files (not committed):
+  - `~/.claude/profiles/kimi-secrets.json`
+  - `~/.claude/profiles/minimax-secrets.json`
 
-## External CLI Friendly
+## Compatibility Notes
 
-- Integration contract is command-only, no secret sharing:
-  1. `cc-provider <target>`
-  2. `cc-provider status`
-- Works for humans and agents in any shell-based CLI workflow.
-
-## Limitations
-
-- Environment-specific details may require adaptation on other machines.
-- Upstream model behavior can change; keep re-validating critical paths.
-
-## Contributing
-
-Open an issue or PR with:
-
-1. Repro steps
-2. Expected vs actual result
-3. Log excerpts (sanitized)
-4. Proposed fix and verification command
+- Kimi profile defaults to ToolSearch disabled for known compatibility reasons.
+- MiniMax profile keeps ToolSearch enabled by default.
+- Claude profile removes active API-key routing vars to reduce auth conflicts.
