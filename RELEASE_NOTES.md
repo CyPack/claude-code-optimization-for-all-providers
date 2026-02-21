@@ -1,5 +1,24 @@
 # Release Notes
 
+## v1.4.0 - 2026-02-21
+
+### Added
+
+- `cc-provider` MiniMax profile commands:
+  - `cc-provider minimax`
+  - `cc-provider mini`
+- New alias scripts:
+  - `scripts/cc-mini`
+  - `scripts/cc-minimax`
+- Provider-specific secret stash support:
+  - `kimi-secrets.json`
+  - `minimax-secrets.json`
+
+### Changed
+
+- Switch flow now supports `Kimi <-> Claude <-> MiniMax`.
+- Docs and agent metadata updated for MiniMax-capable switching.
+
 ## v1.3.0 - 2026-02-21
 
 ### Added

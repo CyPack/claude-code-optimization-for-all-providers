@@ -47,16 +47,19 @@ This folder records the Kimi setup, backups, and troubleshooting notes for your 
 - `$HOME/kimi-ops/LESSONS.md`
 - `$HOME/kimi-ops/SWARM_OPTIMIZATION.md`
 
-## Fast Provider Switching (Kimi <-> Claude)
+## Fast Provider Switching (Kimi <-> Claude <-> MiniMax)
 
 - Script: `$HOME/.local/bin/cc-provider` (repo source: `scripts/cc-provider`)
 - Commands:
   - `cc-provider status`
   - `cc-provider kimi`
   - `cc-provider claude`
+  - `cc-provider minimax` (or `cc-provider mini`)
 - Convenience aliases:
   - `cc-kimi`
   - `cc-claude`
+  - `cc-mini`
+  - `cc-minimax`
 
 Behavior guarantees:
 - On every switch, backups are saved under:
@@ -71,6 +74,11 @@ Behavior guarantees:
   - Applies Kimi base URL
   - Disables `ToolSearch` for compatibility
   - Restores saved Kimi secrets from profile stash if available
+- Switching to `minimax`:
+  - Applies `minimax-2.5` model pins (configurable)
+  - Applies MiniMax base URL default (`https://api.minimax.chat/v1`, configurable)
+  - Keeps `ToolSearch` enabled
+  - Restores saved MiniMax secrets from profile stash if available
 
 ## Stable Runtime Patterns (Kimi)
 

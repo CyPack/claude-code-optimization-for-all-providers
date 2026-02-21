@@ -1,6 +1,6 @@
 # Profile Switching Guide
 
-This guide documents the safe toggle flow between Kimi and Claude in Claude Code.
+This guide documents the safe toggle flow between Kimi, Claude, and MiniMax in Claude Code.
 
 ## Goals
 
@@ -16,6 +16,8 @@ This guide documents the safe toggle flow between Kimi and Claude in Claude Code
 - Aliases:
   - `$HOME/.local/bin/cc-kimi`
   - `$HOME/.local/bin/cc-claude`
+  - `$HOME/.local/bin/cc-mini`
+  - `$HOME/.local/bin/cc-minimax`
 
 ## Commands
 
@@ -23,15 +25,9 @@ This guide documents the safe toggle flow between Kimi and Claude in Claude Code
 cc-provider status
 cc-provider kimi
 cc-provider claude
-```
-
-Planned next command:
-
-```bash
 cc-provider minimax
+cc-provider mini
 ```
-
-Status: roadmap item (not implemented yet).
 
 ## What Happens on Switch
 
@@ -43,7 +39,7 @@ Status: roadmap item (not implemented yet).
 - Backup path:
   - `$HOME/.claude/backups/provider-switch-YYYYmmdd-HHMMSS-XXXXXX/`
 - Saves Kimi key/base URL into:
-  - `$HOME/.claude/profiles/kimi-secrets.json` (permission `0600`)
+  - Provider-specific profile stash (`kimi` or `minimax`) with permission `0600`
 - Updates active config:
   - `model = sonnet`
   - `ENABLE_TOOL_SEARCH = auto:1`
@@ -63,6 +59,19 @@ Status: roadmap item (not implemented yet).
   - `CLAUDE_CODE_SUBAGENT_MODEL = kimi-for-coding`
   - `ANTHROPIC_BASE_URL = https://api.kimi.com/coding/` (unless a saved custom URL exists)
   - Disables `ToolSearch` in permissions
+
+### `cc-provider minimax` / `cc-provider mini`
+
+- Backs up the same files with a new timestamp.
+- Restores MiniMax credentials from active config or MiniMax profile stash.
+- Updates active config:
+  - `model = minimax-2.5` (override via `MINIMAX_MODEL`)
+  - `ENABLE_TOOL_SEARCH = auto:1`
+  - `ANTHROPIC_DEFAULT_HAIKU_MODEL = minimax-2.5`
+  - `ANTHROPIC_DEFAULT_SONNET_MODEL = minimax-2.5`
+  - `CLAUDE_CODE_SUBAGENT_MODEL = minimax-2.5`
+  - `ANTHROPIC_BASE_URL = https://api.minimax.chat/v1` (override via `MINIMAX_BASE_URL_DEFAULT`)
+  - Re-enables `ToolSearch` in permissions
 
 ## Validation
 

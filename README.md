@@ -9,7 +9,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - Captures a real Kimi + Claude Code integration runbook.
 - Documents known failure modes and verified mitigations.
 - Provides repeatable verification commands.
-- Ships a safe provider switch script for `Kimi <-> Claude` profile toggling.
+- Ships a safe provider switch script for `Kimi <-> Claude <-> MiniMax` profile toggling.
 - Preserves troubleshooting history in a clean, shareable form.
 - Exposes agent-friendly metadata so AI tools can parse and reason over the repo quickly.
 
@@ -39,6 +39,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
    - `cc-provider status`
    - `cc-provider kimi`
    - `cc-provider claude`
+   - `cc-provider minimax` (or `cc-provider mini`)
 
 ## Repository Map
 
@@ -47,7 +48,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - `docs/LESSONS.md`: troubleshooting playbook and anti-regression lessons
 - `docs/BACKUPS.md`: backup artifacts and restore snippets
 - `docs/SWARM_OPTIMIZATION.md`: Kimi-specific swarm/spawn/orchestration tuning
-- `docs/PROFILE_SWITCHING.md`: safe Claude/Kimi switching and auth-conflict prevention
+- `docs/PROFILE_SWITCHING.md`: safe Claude/Kimi/MiniMax switching and auth-conflict prevention
 - `RELEASE_NOTES.md`: change history for this repository
 - `AGENTS.md`: explicit instructions and constraints for AI agents
 - `agent-manifest.json`: machine-readable capability/profile metadata
@@ -58,10 +59,6 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - No API keys, tokens, passwords, or raw credentials are stored.
 - Absolute local paths are normalized to `$HOME` where possible.
 - This repository contains operational metadata, not secrets.
-
-## Roadmap
-
-- Next feature: add `MiniMax 2.5` profile support to the same switch flow (`cc-provider minimax`).
 
 ## Limitations
 
