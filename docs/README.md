@@ -71,7 +71,7 @@ Behavior guarantees:
 - Switching to `claude`:
   - Restores Claude-friendly model defaults
   - Re-enables `ToolSearch`
-  - Removes `ANTHROPIC_API_KEY` and `ANTHROPIC_BASE_URL` from active local env to avoid auth conflict
+  - Removes `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, and `ANTHROPIC_BASE_URL` from active local env to avoid auth conflict
   - Stores Kimi secrets in `$HOME/.claude/profiles/kimi-secrets.json` (0600)
 - Switching to `kimi`:
   - Applies `kimi-for-coding` model pins
@@ -79,8 +79,10 @@ Behavior guarantees:
   - Disables `ToolSearch` for compatibility
   - Restores saved Kimi secrets from profile stash if available
 - Switching to `minimax`:
-  - Applies `minimax-2.5` model pins (configurable)
-  - Applies MiniMax base URL default (`https://api.minimax.chat/v1`, configurable)
+  - Applies `MiniMax-M2.5` model pins (configurable via `MINIMAX_MODEL`)
+  - Applies MiniMax base URL default (`https://api.minimax.io/anthropic`, configurable via `MINIMAX_BASE_URL_DEFAULT`)
+  - Auto-migrates legacy `https://api.minimax.chat/v1` entries to the new base URL
+  - Uses `ANTHROPIC_AUTH_TOKEN` as primary credential var (fallback compatible with `ANTHROPIC_API_KEY`)
   - Keeps `ToolSearch` enabled
   - Restores saved MiniMax secrets from profile stash if available
 

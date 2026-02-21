@@ -63,7 +63,7 @@ cc-provider mini
   - `ENABLE_TOOL_SEARCH = auto:1`
   - Removes Kimi model pin env vars (if currently set to Kimi)
   - Re-enables `ToolSearch` in permissions
-  - Removes `ANTHROPIC_API_KEY` and `ANTHROPIC_BASE_URL` from active `settings.local.json`
+  - Removes `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, and `ANTHROPIC_BASE_URL` from active `settings.local.json`
 
 ### `cc-provider kimi`
 
@@ -83,12 +83,17 @@ cc-provider mini
 - Backs up the same files with a new timestamp.
 - Restores MiniMax credentials from active config or MiniMax profile stash.
 - Updates active config:
-  - `model = minimax-2.5` (override via `MINIMAX_MODEL`)
+  - `model = MiniMax-M2.5` (override via `MINIMAX_MODEL`)
   - `ENABLE_TOOL_SEARCH = auto:1`
-  - `ANTHROPIC_DEFAULT_HAIKU_MODEL = minimax-2.5`
-  - `ANTHROPIC_DEFAULT_SONNET_MODEL = minimax-2.5`
-  - `CLAUDE_CODE_SUBAGENT_MODEL = minimax-2.5`
-  - `ANTHROPIC_BASE_URL = https://api.minimax.chat/v1` (override via `MINIMAX_BASE_URL_DEFAULT`)
+  - `ANTHROPIC_MODEL = MiniMax-M2.5`
+  - `ANTHROPIC_SMALL_FAST_MODEL = MiniMax-M2.5`
+  - `ANTHROPIC_DEFAULT_HAIKU_MODEL = MiniMax-M2.5`
+  - `ANTHROPIC_DEFAULT_SONNET_MODEL = MiniMax-M2.5`
+  - `ANTHROPIC_DEFAULT_OPUS_MODEL = MiniMax-M2.5`
+  - `CLAUDE_CODE_SUBAGENT_MODEL = MiniMax-M2.5`
+  - `ANTHROPIC_AUTH_TOKEN = <your_minimax_api_key>`
+  - `ANTHROPIC_BASE_URL = https://api.minimax.io/anthropic` (override via `MINIMAX_BASE_URL_DEFAULT`)
+  - Legacy `https://api.minimax.chat/v1` entries are auto-migrated to the new default URL
   - Re-enables `ToolSearch` in permissions
 
 ## Validation
@@ -104,6 +109,8 @@ claude auth status
 
 - If `cc-provider kimi` warns about missing API key:
   - Re-auth with your Kimi flow or set `ANTHROPIC_API_KEY` in local settings.
+- If `cc-provider minimax` warns about missing token:
+  - Set `ANTHROPIC_AUTH_TOKEN` (MiniMax API key) in local settings and retry.
 - If Claude auth is needed after switching:
   - Run `claude /login`.
 - If anything breaks:

@@ -66,6 +66,15 @@ cc-provider claude
 cc-provider minimax
 ```
 
+MiniMax first-time setup (official Claude Code flow):
+
+```bash
+export ANTHROPIC_AUTH_TOKEN="your_minimax_api_key"
+export ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic"
+cc-provider minimax
+cc-provider status
+```
+
 Alias commands:
 
 ```bash
@@ -92,7 +101,7 @@ Agents should follow this protocol:
 1. Run `cc-provider <kimi|claude|minimax>`.
 2. Run `cc-provider status`.
 3. Return profile, model, ToolSearch state, and transition summary.
-4. If API key warning appears, report warning without inventing credentials.
+4. If API/auth token warning appears, report warning without inventing credentials.
 
 ## Repository Map
 
@@ -122,4 +131,5 @@ Agents should follow this protocol:
 
 - Kimi profile defaults to ToolSearch disabled for known compatibility reasons.
 - MiniMax profile keeps ToolSearch enabled by default.
-- Claude profile removes active API-key routing vars to reduce auth conflicts.
+- MiniMax profile defaults to `MiniMax-M2.5` and `https://api.minimax.io/anthropic`.
+- Claude profile removes active API-key/auth-token routing vars to reduce auth conflicts.

@@ -13,8 +13,8 @@ MINIMAX_SECRETS_FILE="$PROFILES_DIR/minimax-secrets.json"
 KIMI_MODEL="${KIMI_MODEL:-kimi-for-coding}"
 KIMI_BASE_URL_DEFAULT="${KIMI_BASE_URL_DEFAULT:-https://api.kimi.com/coding/}"
 
-MINIMAX_MODEL="${MINIMAX_MODEL:-minimax-2.5}"
-MINIMAX_BASE_URL_DEFAULT="${MINIMAX_BASE_URL_DEFAULT:-https://api.minimax.chat/v1}"
+MINIMAX_MODEL="${MINIMAX_MODEL:-MiniMax-M2.5}"
+MINIMAX_BASE_URL_DEFAULT="${MINIMAX_BASE_URL_DEFAULT:-https://api.minimax.io/anthropic}"
 
 print_usage() {
   cat <<'USAGE'
@@ -90,6 +90,16 @@ active_api_key() {
   extract_secret "$LOCAL_FILE" "ANTHROPIC_API_KEY"
 }
 
+active_auth_token() {
+  local token
+  token="$(extract_secret "$LOCAL_FILE" "ANTHROPIC_AUTH_TOKEN")"
+  if [[ -n "$token" ]]; then
+    printf '%s' "$token"
+    return 0
+  fi
+  extract_secret "$LOCAL_FILE" "ANTHROPIC_API_KEY"
+}
+
 active_base_url() {
   extract_secret "$LOCAL_FILE" "ANTHROPIC_BASE_URL"
 }
@@ -100,16 +110,18 @@ current_model() {
 
 current_provider_guess() {
   local model
+  local model_pin
   local base_url
   model="$(current_model)"
+  model_pin="$(jq -r '.env.ANTHROPIC_MODEL // empty' "$SETTINGS_FILE")"
   base_url="$(active_base_url)"
 
-  if [[ "$model" == "$KIMI_MODEL" ]] || [[ "$base_url" == *"api.kimi.com"* ]]; then
+  if [[ "$model" == "$KIMI_MODEL" || "$model_pin" == "$KIMI_MODEL" ]] || [[ "$base_url" == *"api.kimi.com"* ]]; then
     echo "kimi"
     return 0
   fi
 
-  if [[ "$model" == "$MINIMAX_MODEL" ]] || [[ "$base_url" == *"minimax"* ]]; then
+  if [[ "$model" == "$MINIMAX_MODEL" || "$model_pin" == "$MINIMAX_MODEL" ]] || [[ "$base_url" == *"minimax"* ]]; then
     echo "minimax"
     return 0
   fi
@@ -166,10 +178,10 @@ MSG
 
 stash_secrets() {
   local dest_file="$1"
-  local api_key="$2"
+  local auth_token="$2"
   local base_url="$3"
 
-  if [[ -z "$api_key" && -z "$base_url" ]]; then
+  if [[ -z "$auth_token" && -z "$base_url" ]]; then
     return 0
   fi
 
@@ -177,7 +189,7 @@ stash_secrets() {
 
   local tmp
   tmp="$(mktemp)"
-  jq -n --arg key "$api_key" --arg url "$base_url" '{env:{ANTHROPIC_API_KEY:$key,ANTHROPIC_BASE_URL:$url}}' >"$tmp"
+  jq -n --arg token "$auth_token" --arg url "$base_url" '{env:{ANTHROPIC_AUTH_TOKEN:$token,ANTHROPIC_API_KEY:$token,ANTHROPIC_BASE_URL:$url}}' >"$tmp"
   install -m 600 "$tmp" "$dest_file"
   rm -f "$tmp"
 }
@@ -194,19 +206,19 @@ restore_secret() {
 
 save_active_provider_secrets() {
   local provider
-  local api_key
+  local auth_token
   local base_url
 
   provider="$(current_provider_guess)"
-  api_key="$(active_api_key)"
+  auth_token="$(active_auth_token)"
   base_url="$(active_base_url)"
 
   case "$provider" in
   kimi)
-    stash_secrets "$KIMI_SECRETS_FILE" "$api_key" "$base_url"
+    stash_secrets "$KIMI_SECRETS_FILE" "$auth_token" "$base_url"
     ;;
   minimax)
-    stash_secrets "$MINIMAX_SECRETS_FILE" "$api_key" "$base_url"
+    stash_secrets "$MINIMAX_SECRETS_FILE" "$auth_token" "$base_url"
     ;;
   *)
     ;;
@@ -241,7 +253,14 @@ switch_to_claude() {
     .model = "sonnet"
     | .env = (.env // {})
     | .env.ENABLE_TOOL_SEARCH = "auto:1"
-    | .env |= with_entries(select(.key != "ANTHROPIC_DEFAULT_HAIKU_MODEL" and .key != "ANTHROPIC_DEFAULT_SONNET_MODEL" and .key != "CLAUDE_CODE_SUBAGENT_MODEL"))
+    | .env |= with_entries(select(
+        .key != "ANTHROPIC_MODEL"
+        and .key != "ANTHROPIC_SMALL_FAST_MODEL"
+        and .key != "ANTHROPIC_DEFAULT_HAIKU_MODEL"
+        and .key != "ANTHROPIC_DEFAULT_SONNET_MODEL"
+        and .key != "ANTHROPIC_DEFAULT_OPUS_MODEL"
+        and .key != "CLAUDE_CODE_SUBAGENT_MODEL"
+      ))
     | .permissions = (.permissions // {})
     | .permissions.allow = ((.permissions.allow // []) | add_once("ToolSearch"))
     | .permissions.deny = ((.permissions.deny // []) | map(select(. != "ToolSearch")))
@@ -249,7 +268,7 @@ switch_to_claude() {
 
   write_json "$LOCAL_FILE" '
     .env = (.env // {})
-    | .env |= with_entries(select(.key != "ANTHROPIC_API_KEY" and .key != "ANTHROPIC_BASE_URL"))
+    | .env |= with_entries(select(.key != "ANTHROPIC_API_KEY" and .key != "ANTHROPIC_AUTH_TOKEN" and .key != "ANTHROPIC_BASE_URL"))
   '
 
   cat <<MSG
@@ -313,6 +332,7 @@ switch_to_kimi() {
   write_json_args "$LOCAL_FILE" '
     .env = (.env // {})
     | .env.ANTHROPIC_BASE_URL = $base_url
+    | .env |= with_entries(select(.key != "ANTHROPIC_AUTH_TOKEN"))
     | if $api_key == "" then
         (.env |= with_entries(select(.key != "ANTHROPIC_API_KEY")))
       else
@@ -362,7 +382,7 @@ switch_to_minimax() {
   local previous_base_url
   local backup_dir
   local current_provider
-  local api_key
+  local auth_token
   local base_url
 
   previous_provider="$(current_provider_guess)"
@@ -380,46 +400,52 @@ switch_to_minimax() {
   save_active_provider_secrets
 
   if [[ "$current_provider" == "minimax" ]]; then
-    api_key="$(active_api_key)"
+    auth_token="$(active_auth_token)"
     base_url="$(active_base_url)"
   else
-    api_key="$(restore_secret "$MINIMAX_SECRETS_FILE" "ANTHROPIC_API_KEY")"
+    auth_token="$(restore_secret "$MINIMAX_SECRETS_FILE" "ANTHROPIC_AUTH_TOKEN")"
+    if [[ -z "$auth_token" ]]; then
+      auth_token="$(restore_secret "$MINIMAX_SECRETS_FILE" "ANTHROPIC_API_KEY")"
+    fi
     base_url="$(restore_secret "$MINIMAX_SECRETS_FILE" "ANTHROPIC_BASE_URL")"
   fi
 
-  if [[ -z "$base_url" ]]; then
+  if [[ -z "$base_url" ]] || [[ "$base_url" == *"api.minimax.chat"* ]]; then
     base_url="$MINIMAX_BASE_URL_DEFAULT"
   fi
 
   write_json_args "$LOCAL_FILE" '
     .env = (.env // {})
     | .env.ANTHROPIC_BASE_URL = $base_url
-    | if $api_key == "" then
-        (.env |= with_entries(select(.key != "ANTHROPIC_API_KEY")))
+    | if $auth_token == "" then
+        (.env |= with_entries(select(.key != "ANTHROPIC_AUTH_TOKEN" and .key != "ANTHROPIC_API_KEY")))
       else
-        (.env.ANTHROPIC_API_KEY = $api_key)
+        .env.ANTHROPIC_AUTH_TOKEN = $auth_token
       end
-  ' --arg api_key "$api_key" --arg base_url "$base_url"
+  ' --arg auth_token "$auth_token" --arg base_url "$base_url"
 
   write_json_args "$SETTINGS_FILE" '
     def add_once($x): if index($x) == null then . + [$x] else . end;
     .model = $model
     | .env = (.env // {})
     | .env.ENABLE_TOOL_SEARCH = "auto:1"
+    | .env.ANTHROPIC_MODEL = $model
+    | .env.ANTHROPIC_SMALL_FAST_MODEL = $model
     | .env.ANTHROPIC_DEFAULT_HAIKU_MODEL = $model
     | .env.ANTHROPIC_DEFAULT_SONNET_MODEL = $model
+    | .env.ANTHROPIC_DEFAULT_OPUS_MODEL = $model
     | .env.CLAUDE_CODE_SUBAGENT_MODEL = $model
     | .permissions = (.permissions // {})
     | .permissions.allow = ((.permissions.allow // []) | add_once("ToolSearch"))
     | .permissions.deny = ((.permissions.deny // []) | map(select(. != "ToolSearch")))
   ' --arg model "$MINIMAX_MODEL"
 
-  if [[ -z "$api_key" ]]; then
+  if [[ -z "$auth_token" ]]; then
     cat <<WARN
 Switched to MiniMax profile.
 Backup: $backup_dir
-Warning: No MiniMax API key found in active config or saved profile.
-Set ANTHROPIC_API_KEY manually for your MiniMax endpoint before using Claude Code.
+Warning: No MiniMax auth token found in active config or saved profile.
+Set ANTHROPIC_AUTH_TOKEN manually for your MiniMax endpoint before using Claude Code.
 WARN
   else
     cat <<MSG
@@ -440,21 +466,21 @@ status() {
 
   local model
   local base_url
-  local has_api_key
+  local has_auth_token
   local toolsearch_allow
   local toolsearch_deny
   local profile
-  local shell_api_key="no"
+  local shell_auth_token="no"
 
   model="$(current_model)"
   base_url="$(active_base_url)"
-  has_api_key="$(jq -r 'if (.env.ANTHROPIC_API_KEY // "") == "" then "no" else "yes" end' "$LOCAL_FILE")"
+  has_auth_token="$(jq -r 'if ((.env.ANTHROPIC_AUTH_TOKEN // .env.ANTHROPIC_API_KEY // "") == "" ) then "no" else "yes" end' "$LOCAL_FILE")"
   toolsearch_allow="$(jq -r 'if ((.permissions.allow // []) | index("ToolSearch")) == null then "no" else "yes" end' "$SETTINGS_FILE")"
   toolsearch_deny="$(jq -r 'if ((.permissions.deny // []) | index("ToolSearch")) == null then "no" else "yes" end' "$SETTINGS_FILE")"
   profile="$(current_provider_guess)"
 
-  if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    shell_api_key="yes"
+  if [[ -n "${ANTHROPIC_AUTH_TOKEN:-}" || -n "${ANTHROPIC_API_KEY:-}" ]]; then
+    shell_auth_token="yes"
   fi
 
   cat <<MSG
@@ -462,8 +488,8 @@ Provider Status
 - Active profile guess: $profile
 - model: $model
 - base_url present: $( [[ -n "$base_url" ]] && echo yes || echo no )
-- api key present in active env: $has_api_key
-- shell ANTHROPIC_API_KEY exported: $shell_api_key
+- auth token present in active env: $has_auth_token
+- shell auth token exported: $shell_auth_token
 - ToolSearch allowed: $toolsearch_allow
 - ToolSearch denied: $toolsearch_deny
 - settings: $SETTINGS_FILE
