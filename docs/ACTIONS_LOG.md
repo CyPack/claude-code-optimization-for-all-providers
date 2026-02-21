@@ -65,6 +65,23 @@ Date: 2026-02-21
     - `$HOME/.claude/rules/autonomous-orchestration.md`
     - Goal: commandless auto-spawn for complex tasks and explicit "agent spawn" requests
 24. Updated swarm optimization runbook to include commandless autonomous mode.
+25. Added official provider switching utilities and installation commands to repository docs.
+26. Added MiniMax provider profile support with separate local stash:
+    - `$HOME/.claude/profiles/minimax-secrets.json`
+27. Added no-op and transition notices for `cc-provider` switching:
+    - "already active" guard
+    - previous -> current provider/API summary
+28. Aligned MiniMax switch flow with official Claude Code docs:
+    - `model = MiniMax-M2.5`
+    - `ANTHROPIC_AUTH_TOKEN` primary credential
+    - `ANTHROPIC_BASE_URL = https://api.minimax.io/anthropic`
+29. Added migration logic for legacy MiniMax URL:
+    - auto-upgrade `https://api.minimax.chat/v1` -> `https://api.minimax.io/anthropic`
+30. Fixed provider-guess false positive after Claude switch:
+    - clear MiniMax model-pin env vars when switching to `claude`
+31. Added README official provider links block and logo click-through links:
+    - Kimi logo -> Kimi pricing
+    - MiniMax logo -> MiniMax coding plan
 
 ## Important Notes
 

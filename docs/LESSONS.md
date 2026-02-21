@@ -80,6 +80,38 @@ Date: 2026-02-21
   2. `permissions.deny` içinde `ToolSearch` kalmalı
   3. Orchestration için `/custom:kimi-swarm` protokolünü kullan
 
+## Lesson 9: MiniMax Uses `ANTHROPIC_AUTH_TOKEN` (Not `ANTHROPIC_API_KEY`)
+
+- Symptom: MiniMax profile looks active but requests fail/auth mismatch appears.
+- Cause: MiniMax Claude Code flow expects `ANTHROPIC_AUTH_TOKEN` as primary token variable.
+- Fix:
+  1. Set `ANTHROPIC_AUTH_TOKEN` in `~/.claude/settings.local.json`
+  2. Set `ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic`
+  3. Remove `ANTHROPIC_API_KEY` from active env for MiniMax profile to avoid ambiguity
+
+## Lesson 10: Auto-Migrate Legacy MiniMax Base URL
+
+- Symptom: After switching to MiniMax, status shows old endpoint `https://api.minimax.chat/v1`.
+- Cause: Old value restored from local stash/profile.
+- Fix:
+  1. Treat `api.minimax.chat` as legacy value
+  2. Force-update to `https://api.minimax.io/anthropic` during `cc-provider minimax`
+  3. Re-check with `cc-provider status`
+
+## Lesson 11: Provider Guess Must Clear Model Pins on Claude Switch
+
+- Symptom: `cc-provider claude` completed but provider guess still shows `minimax`.
+- Cause: MiniMax model pin vars remained in `settings.json` env block.
+- Fix:
+  1. On Claude switch, remove:
+     - `ANTHROPIC_MODEL`
+     - `ANTHROPIC_SMALL_FAST_MODEL`
+     - `ANTHROPIC_DEFAULT_HAIKU_MODEL`
+     - `ANTHROPIC_DEFAULT_SONNET_MODEL`
+     - `ANTHROPIC_DEFAULT_OPUS_MODEL`
+     - `CLAUDE_CODE_SUBAGENT_MODEL`
+  2. Re-run `cc-provider status` and verify active profile guess is `claude`
+
 ## Quick Health Commands
 
 ```bash
@@ -90,4 +122,5 @@ claude -p "One line: model id only" --output-format text
 jq '.permissions | {allow, deny}' $HOME/.claude/settings.json
 jq '.env.ENABLE_TOOL_SEARCH' $HOME/.claude/settings.json
 claude -p "SOR dosyalarini yukle. File case'e dokunma." --dangerously-skip-permissions
+jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_BASE_URL}' $HOME/.claude/settings.local.json
 ```
