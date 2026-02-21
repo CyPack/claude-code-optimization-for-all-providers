@@ -35,6 +35,18 @@ cc-provider minimax
 cc-provider mini
 ```
 
+## Built-in Notifications
+
+- No-op protection:
+  - If target profile is already active, switch is skipped.
+  - Example message: `CC zaten su an kimi kullaniyor.`
+- Transition summary:
+  - After a real switch, output includes:
+    - previous provider
+    - current provider
+    - previous API base URL
+    - current API base URL
+
 ## What Happens on Switch
 
 ### `cc-provider claude`

@@ -122,6 +122,48 @@ current_provider_guess() {
   echo "unknown"
 }
 
+fmt_value() {
+  local value="${1:-}"
+  if [[ -n "$value" ]]; then
+    printf '%s' "$value"
+  else
+    printf '<none>'
+  fi
+}
+
+print_already_active_notice() {
+  local target="$1"
+  local model="$2"
+  local base_url="$3"
+
+  cat <<MSG
+No switch needed.
+- Claude Code is already using '$target' profile.
+- model: $model
+- API base URL: $(fmt_value "$base_url")
+- notice: CC zaten su an $target kullaniyor.
+MSG
+}
+
+print_transition_notice() {
+  local previous_provider="$1"
+  local previous_base_url="$2"
+  local current_provider
+  local current_base_url
+
+  current_provider="$(current_provider_guess)"
+  current_base_url="$(active_base_url)"
+
+  cat <<MSG
+Switch transition summary
+- previous provider: $previous_provider
+- current provider: $current_provider
+- previous API base URL: $(fmt_value "$previous_base_url")
+- current API base URL: $(fmt_value "$current_base_url")
+- notice: onceki api/provider '$previous_provider', simdiki '$current_provider'.
+MSG
+}
+
 stash_secrets() {
   local dest_file="$1"
   local api_key="$2"
@@ -176,7 +218,20 @@ switch_to_claude() {
   ensure_json_file "$SETTINGS_FILE"
   ensure_json_file "$LOCAL_FILE"
 
+  local previous_provider
+  local previous_model
+  local previous_base_url
   local backup_dir
+
+  previous_provider="$(current_provider_guess)"
+  previous_model="$(current_model)"
+  previous_base_url="$(active_base_url)"
+
+  if [[ "$previous_provider" == "claude" ]]; then
+    print_already_active_notice "claude" "$previous_model" "$previous_base_url"
+    return 0
+  fi
+
   backup_dir="$(backup_current)"
 
   save_active_provider_secrets
@@ -205,6 +260,8 @@ Notes:
 - If needed, run: claude /login
 MSG
 
+  print_transition_notice "$previous_provider" "$previous_base_url"
+
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     cat <<WARN
 Warning:
@@ -219,10 +276,22 @@ switch_to_kimi() {
   ensure_json_file "$SETTINGS_FILE"
   ensure_json_file "$LOCAL_FILE"
 
+  local previous_provider
+  local previous_model
+  local previous_base_url
   local backup_dir
   local current_provider
   local api_key
   local base_url
+
+  previous_provider="$(current_provider_guess)"
+  previous_model="$(current_model)"
+  previous_base_url="$(active_base_url)"
+
+  if [[ "$previous_provider" == "kimi" ]]; then
+    print_already_active_notice "kimi" "$previous_model" "$previous_base_url"
+    return 0
+  fi
 
   backup_dir="$(backup_current)"
   current_provider="$(current_provider_guess)"
@@ -279,6 +348,8 @@ Notes:
 - ToolSearch was disabled for Kimi compatibility.
 MSG
   fi
+
+  print_transition_notice "$previous_provider" "$previous_base_url"
 }
 
 switch_to_minimax() {
@@ -286,10 +357,22 @@ switch_to_minimax() {
   ensure_json_file "$SETTINGS_FILE"
   ensure_json_file "$LOCAL_FILE"
 
+  local previous_provider
+  local previous_model
+  local previous_base_url
   local backup_dir
   local current_provider
   local api_key
   local base_url
+
+  previous_provider="$(current_provider_guess)"
+  previous_model="$(current_model)"
+  previous_base_url="$(active_base_url)"
+
+  if [[ "$previous_provider" == "minimax" ]]; then
+    print_already_active_notice "minimax" "$previous_model" "$previous_base_url"
+    return 0
+  fi
 
   backup_dir="$(backup_current)"
   current_provider="$(current_provider_guess)"
@@ -347,6 +430,8 @@ Notes:
 - ToolSearch remains enabled by default in this profile.
 MSG
   fi
+
+  print_transition_notice "$previous_provider" "$previous_base_url"
 }
 
 status() {

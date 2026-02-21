@@ -10,6 +10,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - Documents known failure modes and verified mitigations.
 - Provides repeatable verification commands.
 - Ships a safe provider switch script for `Kimi <-> Claude <-> MiniMax` profile toggling.
+- Includes idempotent switch behavior with clear transition notifications.
 - Preserves troubleshooting history in a clean, shareable form.
 - Exposes agent-friendly metadata so AI tools can parse and reason over the repo quickly.
 

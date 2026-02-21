@@ -1,5 +1,20 @@
 # Release Notes
 
+## v1.6.0 - 2026-02-21
+
+### Added
+
+- Idempotent provider switch behavior:
+  - If target provider is already active, switch is skipped with explicit notice.
+- Transition notification output after each real switch:
+  - previous provider/API base URL
+  - current provider/API base URL
+
+### Changed
+
+- `scripts/cc-provider` now reports no-op and transition summaries for user clarity.
+- Docs updated with notification behavior and agent handling notes.
+
 ## v1.5.0 - 2026-02-21
 
 ### Added

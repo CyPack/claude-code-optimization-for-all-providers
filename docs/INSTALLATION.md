@@ -62,6 +62,11 @@ cc-provider claude
 cc-provider minimax
 ```
 
+Output behavior:
+
+- If already on target profile: no-op notice is shown.
+- If profile changes: previous -> current provider/API summary is shown.
+
 ## External CLI Integration Pattern
 
 Any CLI/agent can call these commands directly. Recommended minimal protocol:

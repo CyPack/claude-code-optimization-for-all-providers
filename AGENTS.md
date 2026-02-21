@@ -46,6 +46,8 @@ For provider-switch intent, use this exact flow:
 2. Run `cc-provider status`
 3. Return profile + model + ToolSearch state
 4. If API key missing warning appears, report it without fabricating credentials
+5. If no-op message appears (`already using`), report that no switch was needed
+6. If transition summary appears, include previous -> current provider in response
 
 ## Non-Goals
 

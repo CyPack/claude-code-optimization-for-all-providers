@@ -1,6 +1,6 @@
 {
   "name": "kimi-claude-code-optimization",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "updated_at": "2026-02-21",
   "purpose": "Sanitized operational knowledge base for Kimi + Claude Code + MCP stability and troubleshooting.",
   "primary_model_target": "kimi-for-coding",
@@ -48,6 +48,10 @@
     "provider_switch_script": "scripts/cc-provider",
     "installer_local": "scripts/install-switch.sh",
     "installer_remote": "scripts/install-from-github.sh",
+    "switch_behavior": [
+      "idempotent-noop-warning",
+      "previous-current-transition-summary"
+    ],
     "aliases": [
       "scripts/cc-kimi",
       "scripts/cc-claude",
