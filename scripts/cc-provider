@@ -420,7 +420,8 @@ switch_to_minimax() {
     | if $auth_token == "" then
         (.env |= with_entries(select(.key != "ANTHROPIC_AUTH_TOKEN" and .key != "ANTHROPIC_API_KEY")))
       else
-        .env.ANTHROPIC_AUTH_TOKEN = $auth_token
+        (.env.ANTHROPIC_AUTH_TOKEN = $auth_token)
+        | (.env |= with_entries(select(.key != "ANTHROPIC_API_KEY")))
       end
   ' --arg auth_token "$auth_token" --arg base_url "$base_url"
 
