@@ -1,0 +1,276 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
+LOCAL_FILE="$CLAUDE_DIR/settings.local.json"
+PROFILES_DIR="$CLAUDE_DIR/profiles"
+BACKUPS_DIR="$CLAUDE_DIR/backups"
+KIMI_SECRETS_FILE="$PROFILES_DIR/kimi-secrets.json"
+KIMI_MODEL="${KIMI_MODEL:-kimi-for-coding}"
+KIMI_BASE_URL_DEFAULT="${KIMI_BASE_URL_DEFAULT:-https://api.kimi.com/coding/}"
+
+print_usage() {
+  cat <<'USAGE'
+Usage:
+  cc-provider status
+  cc-provider kimi
+  cc-provider claude
+
+Aliases:
+  cc-kimi
+  cc-claude
+USAGE
+}
+
+ensure_json_file() {
+  local file="$1"
+  if [[ ! -f "$file" ]]; then
+    printf '{}\n' >"$file"
+  fi
+  if ! jq empty "$file" >/dev/null 2>&1; then
+    echo "Invalid JSON: $file" >&2
+    exit 1
+  fi
+}
+
+write_json() {
+  local src="$1"
+  local jq_filter="$2"
+  shift 2
+  local tmp
+  tmp="$(mktemp)"
+  jq "$jq_filter" "$@" "$src" >"$tmp"
+  mv "$tmp" "$src"
+}
+
+write_json_args() {
+  local src="$1"
+  local jq_filter="$2"
+  shift 2
+  local tmp
+  tmp="$(mktemp)"
+  jq "$@" "$jq_filter" "$src" >"$tmp"
+  mv "$tmp" "$src"
+}
+
+backup_current() {
+  local timestamp
+  timestamp="$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$BACKUPS_DIR"
+  local backup_dir
+  backup_dir="$(mktemp -d "$BACKUPS_DIR/provider-switch-$timestamp-XXXXXX")"
+
+  [[ -f "$SETTINGS_FILE" ]] && cp -a "$SETTINGS_FILE" "$backup_dir/settings.json"
+  [[ -f "$LOCAL_FILE" ]] && cp -a "$LOCAL_FILE" "$backup_dir/settings.local.json"
+
+  echo "$backup_dir"
+}
+
+extract_secret() {
+  local file="$1"
+  local key="$2"
+  if [[ -f "$file" ]]; then
+    jq -r --arg key "$key" '.env[$key] // empty' "$file"
+  else
+    printf ''
+  fi
+}
+
+save_kimi_secrets() {
+  mkdir -p "$PROFILES_DIR"
+
+  local api_key
+  local base_url
+  api_key="$(extract_secret "$LOCAL_FILE" "ANTHROPIC_API_KEY")"
+  base_url="$(extract_secret "$LOCAL_FILE" "ANTHROPIC_BASE_URL")"
+
+  if [[ -z "$api_key" && -z "$base_url" ]]; then
+    return 0
+  fi
+
+  local tmp
+  tmp="$(mktemp)"
+  jq -n --arg key "$api_key" --arg url "$base_url" '{env:{ANTHROPIC_API_KEY:$key,ANTHROPIC_BASE_URL:$url}}' >"$tmp"
+  install -m 600 "$tmp" "$KIMI_SECRETS_FILE"
+  rm -f "$tmp"
+}
+
+restore_kimi_secret() {
+  local key="$1"
+  if [[ ! -f "$KIMI_SECRETS_FILE" ]]; then
+    printf ''
+    return 0
+  fi
+  jq -r --arg key "$key" '.env[$key] // empty' "$KIMI_SECRETS_FILE"
+}
+
+switch_to_claude() {
+  mkdir -p "$CLAUDE_DIR"
+  ensure_json_file "$SETTINGS_FILE"
+  ensure_json_file "$LOCAL_FILE"
+
+  local backup_dir
+  backup_dir="$(backup_current)"
+
+  save_kimi_secrets
+
+  write_json "$SETTINGS_FILE" '
+    def add_once($x): if index($x) == null then . + [$x] else . end;
+    .model = "sonnet"
+    | .env = (.env // {})
+    | .env.ENABLE_TOOL_SEARCH = "auto:1"
+    | (if .env.ANTHROPIC_DEFAULT_HAIKU_MODEL == "kimi-for-coding" then del(.env.ANTHROPIC_DEFAULT_HAIKU_MODEL) else . end)
+    | (if .env.ANTHROPIC_DEFAULT_SONNET_MODEL == "kimi-for-coding" then del(.env.ANTHROPIC_DEFAULT_SONNET_MODEL) else . end)
+    | (if .env.CLAUDE_CODE_SUBAGENT_MODEL == "kimi-for-coding" then del(.env.CLAUDE_CODE_SUBAGENT_MODEL) else . end)
+    | .permissions = (.permissions // {})
+    | .permissions.allow = ((.permissions.allow // []) | add_once("ToolSearch"))
+    | .permissions.deny = ((.permissions.deny // []) | map(select(. != "ToolSearch")))
+  '
+
+  write_json "$LOCAL_FILE" '
+    .env = (.env // {})
+    | .env |= with_entries(select(.key != "ANTHROPIC_API_KEY" and .key != "ANTHROPIC_BASE_URL"))
+  '
+
+  cat <<MSG
+Switched to Claude profile.
+Backup: $backup_dir
+Notes:
+- Kimi API credentials were removed from active local env to avoid auth conflicts.
+- If needed, run: claude /login
+MSG
+}
+
+switch_to_kimi() {
+  mkdir -p "$CLAUDE_DIR"
+  ensure_json_file "$SETTINGS_FILE"
+  ensure_json_file "$LOCAL_FILE"
+
+  local backup_dir
+  backup_dir="$(backup_current)"
+
+  local api_key
+  local base_url
+  api_key="$(extract_secret "$LOCAL_FILE" "ANTHROPIC_API_KEY")"
+  base_url="$(extract_secret "$LOCAL_FILE" "ANTHROPIC_BASE_URL")"
+
+  if [[ -z "$api_key" ]]; then
+    api_key="$(restore_kimi_secret "ANTHROPIC_API_KEY")"
+  fi
+  if [[ -z "$base_url" ]]; then
+    base_url="$(restore_kimi_secret "ANTHROPIC_BASE_URL")"
+  fi
+  if [[ -z "$base_url" ]]; then
+    base_url="$KIMI_BASE_URL_DEFAULT"
+  fi
+
+  write_json_args "$LOCAL_FILE" '
+    .env = (.env // {})
+    | .env.ANTHROPIC_BASE_URL = $base_url
+    | if $api_key == "" then . else (.env.ANTHROPIC_API_KEY = $api_key) end
+  ' --arg api_key "$api_key" --arg base_url "$base_url"
+
+  write_json_args "$SETTINGS_FILE" '
+    .model = $model
+    | .env = (.env // {})
+    | .env.ENABLE_TOOL_SEARCH = "0"
+    | .env.ANTHROPIC_DEFAULT_HAIKU_MODEL = $model
+    | .env.ANTHROPIC_DEFAULT_SONNET_MODEL = $model
+    | .env.CLAUDE_CODE_SUBAGENT_MODEL = $model
+    | .permissions = (.permissions // {})
+    | .permissions.allow = ((.permissions.allow // []) | map(select(. != "ToolSearch")))
+    | .permissions.deny = ((.permissions.deny // []) | if index("ToolSearch") == null then . + ["ToolSearch"] else . end)
+  ' --arg model "$KIMI_MODEL"
+
+  if [[ -z "$api_key" ]]; then
+    cat <<WARN
+Switched to Kimi profile.
+Backup: $backup_dir
+Warning: No Kimi API key found in active config or saved profile.
+Set ANTHROPIC_API_KEY manually (or run your Kimi auth flow) before using Claude Code.
+WARN
+  else
+    cat <<MSG
+Switched to Kimi profile.
+Backup: $backup_dir
+Notes:
+- Kimi model pins and base URL were applied.
+- ToolSearch was disabled for Kimi compatibility.
+MSG
+  fi
+}
+
+status() {
+  ensure_json_file "$SETTINGS_FILE"
+  ensure_json_file "$LOCAL_FILE"
+
+  local model
+  local base_url
+  local has_api_key
+  local toolsearch_allow
+  local toolsearch_deny
+  local profile="unknown"
+
+  model="$(jq -r '.model // "unset"' "$SETTINGS_FILE")"
+  base_url="$(jq -r '.env.ANTHROPIC_BASE_URL // empty' "$LOCAL_FILE")"
+  has_api_key="$(jq -r 'if (.env.ANTHROPIC_API_KEY // "") == "" then "no" else "yes" end' "$LOCAL_FILE")"
+  toolsearch_allow="$(jq -r 'if ((.permissions.allow // []) | index("ToolSearch")) == null then "no" else "yes" end' "$SETTINGS_FILE")"
+  toolsearch_deny="$(jq -r 'if ((.permissions.deny // []) | index("ToolSearch")) == null then "no" else "yes" end' "$SETTINGS_FILE")"
+
+  if [[ "$model" == "$KIMI_MODEL" ]] || [[ "$base_url" == *"api.kimi.com"* ]]; then
+    profile="kimi"
+  elif [[ "$model" == "sonnet" || "$model" == "opus" || "$model" == "haiku" || "$model" == claude-* ]]; then
+    profile="claude"
+  fi
+
+  cat <<MSG
+Provider Status
+- Active profile guess: $profile
+- model: $model
+- base_url present: $( [[ -n "$base_url" ]] && echo yes || echo no )
+- api key present in active env: $has_api_key
+- ToolSearch allowed: $toolsearch_allow
+- ToolSearch denied: $toolsearch_deny
+- settings: $SETTINGS_FILE
+- settings local: $LOCAL_FILE
+- kimi secrets stash: $KIMI_SECRETS_FILE
+MSG
+
+  if command -v claude >/dev/null 2>&1; then
+    local auth_status
+    auth_status="$(claude auth status 2>/dev/null || true)"
+    if [[ -n "$auth_status" ]]; then
+      local logged_in auth_method
+      logged_in="$(printf '%s' "$auth_status" | jq -r 'if has("loggedIn") then (.loggedIn | tostring) else "unknown" end' 2>/dev/null || printf 'unknown')"
+      auth_method="$(printf '%s' "$auth_status" | jq -r '.authMethod // "unknown"' 2>/dev/null || printf 'unknown')"
+      echo "- claude auth: loggedIn=$logged_in, authMethod=$auth_method"
+    fi
+  fi
+}
+
+main() {
+  local cmd="${1:-status}"
+
+  case "$cmd" in
+  status)
+    status
+    ;;
+  kimi)
+    switch_to_kimi
+    ;;
+  claude)
+    switch_to_claude
+    ;;
+  -h|--help|help)
+    print_usage
+    ;;
+  *)
+    echo "Unknown command: $cmd" >&2
+    print_usage >&2
+    exit 1
+    ;;
+  esac
+}
+
+main "$@"

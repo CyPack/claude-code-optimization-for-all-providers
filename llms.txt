@@ -10,6 +10,7 @@ Primary docs:
 - docs/ACTIONS_LOG.md
 - docs/BACKUPS.md
 - docs/SWARM_OPTIMIZATION.md
+- docs/PROFILE_SWITCHING.md
 - AGENTS.md
 - RELEASE_NOTES.md
 - agent-manifest.json
@@ -18,6 +19,7 @@ Key facts:
 - Target runtime model: kimi-for-coding
 - Known compatibility issue: ToolSearch -> tool_reference can trigger HTTP 400
 - Verified mitigation: disable ToolSearch for this workflow
+- One-command profile switch: cc-provider (kimi/claude/status)
 - Autonomous orchestration rule enables commandless multi-agent spawn on complex tasks
 - SOR upload scope guard: do not use File case path unless explicitly requested
 

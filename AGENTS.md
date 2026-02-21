@@ -25,6 +25,7 @@ Understand, validate, and maintain a stable `kimi-for-coding` + Claude Code + MC
 ## Key Operational Facts
 
 - Model target: `kimi-for-coding`
+- Switch utility: `scripts/cc-provider` (`status`, `kimi`, `claude`)
 - Known issue: `ToolSearch -> tool_reference` may produce HTTP 400 on this stack.
 - Stable mitigation: keep `ToolSearch` disabled for this workflow.
 - SOR default scope: normal upload flow should not touch `input/File case/` unless user explicitly asks for file case flow.

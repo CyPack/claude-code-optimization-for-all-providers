@@ -33,6 +33,7 @@ This folder records the Kimi setup, backups, and troubleshooting notes for your 
 
 - `$HOME/.claude/settings.json`
 - `$HOME/.claude/settings.local.json`
+- `$HOME/.claude/profiles/kimi-secrets.json` (created by switch script)
 - `$HOME/.claude/.credentials.json`
 - `$HOME/.config/Claude/config.json`
 - `$HOME/.kimi/config.toml`
@@ -45,6 +46,31 @@ This folder records the Kimi setup, backups, and troubleshooting notes for your 
 - `$HOME/kimi-ops/BACKUPS.md`
 - `$HOME/kimi-ops/LESSONS.md`
 - `$HOME/kimi-ops/SWARM_OPTIMIZATION.md`
+
+## Fast Provider Switching (Kimi <-> Claude)
+
+- Script: `$HOME/.local/bin/cc-provider` (repo source: `scripts/cc-provider`)
+- Commands:
+  - `cc-provider status`
+  - `cc-provider kimi`
+  - `cc-provider claude`
+- Convenience aliases:
+  - `cc-kimi`
+  - `cc-claude`
+
+Behavior guarantees:
+- On every switch, backups are saved under:
+  - `$HOME/.claude/backups/provider-switch-YYYYmmdd-HHMMSS-XXXXXX/`
+- Switching to `claude`:
+  - Restores Claude-friendly model defaults
+  - Re-enables `ToolSearch`
+  - Removes `ANTHROPIC_API_KEY` and `ANTHROPIC_BASE_URL` from active local env to avoid auth conflict
+  - Stores Kimi secrets in `$HOME/.claude/profiles/kimi-secrets.json` (0600)
+- Switching to `kimi`:
+  - Applies `kimi-for-coding` model pins
+  - Applies Kimi base URL
+  - Disables `ToolSearch` for compatibility
+  - Restores saved Kimi secrets from profile stash if available
 
 ## Stable Runtime Patterns (Kimi)
 

@@ -1,5 +1,28 @@
 # Release Notes
 
+## v1.3.0 - 2026-02-21
+
+### Added
+
+- Provider switch automation scripts:
+  - `scripts/cc-provider`
+  - `scripts/cc-kimi`
+  - `scripts/cc-claude`
+- New guide: `docs/PROFILE_SWITCHING.md`
+- README and docs updates for one-command `Kimi <-> Claude` switching.
+
+### Changed
+
+- `agent-manifest.json` upgraded to `1.3.0` with utility metadata.
+- `llms.txt` index expanded with profile switching documentation.
+- `docs/README.md` now documents backup behavior and auth-conflict-safe switching.
+
+### Notes
+
+- No credentials or secrets are stored in this repository.
+- Runtime backups are created locally under `$HOME/.claude/backups/provider-switch-*`.
+- Next planned feature: `MiniMax 2.5` profile addition to `cc-provider`.
+
 ## v1.2.0 - 2026-02-21
 
 ### Added

@@ -9,6 +9,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - Captures a real Kimi + Claude Code integration runbook.
 - Documents known failure modes and verified mitigations.
 - Provides repeatable verification commands.
+- Ships a safe provider switch script for `Kimi <-> Claude` profile toggling.
 - Preserves troubleshooting history in a clean, shareable form.
 - Exposes agent-friendly metadata so AI tools can parse and reason over the repo quickly.
 
@@ -34,6 +35,10 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 3. Read `docs/ACTIONS_LOG.md` for chronology and validation evidence.
 4. Read `docs/BACKUPS.md` for backup and restore references.
 5. Check `AGENTS.md` and `agent-manifest.json` if you are an AI agent/tool.
+6. Use `scripts/cc-provider` (or install it as `cc-provider`) for one-command profile switch:
+   - `cc-provider status`
+   - `cc-provider kimi`
+   - `cc-provider claude`
 
 ## Repository Map
 
@@ -42,6 +47,7 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - `docs/LESSONS.md`: troubleshooting playbook and anti-regression lessons
 - `docs/BACKUPS.md`: backup artifacts and restore snippets
 - `docs/SWARM_OPTIMIZATION.md`: Kimi-specific swarm/spawn/orchestration tuning
+- `docs/PROFILE_SWITCHING.md`: safe Claude/Kimi switching and auth-conflict prevention
 - `RELEASE_NOTES.md`: change history for this repository
 - `AGENTS.md`: explicit instructions and constraints for AI agents
 - `agent-manifest.json`: machine-readable capability/profile metadata
@@ -53,9 +59,12 @@ This repo documents what was tested, what failed, what was fixed, and how to kee
 - Absolute local paths are normalized to `$HOME` where possible.
 - This repository contains operational metadata, not secrets.
 
+## Roadmap
+
+- Next feature: add `MiniMax 2.5` profile support to the same switch flow (`cc-provider minimax`).
+
 ## Limitations
 
-- This repo does not include executable automation scripts yet.
 - Environment-specific details may require adaptation on other machines.
 - Upstream model behavior can change; keep re-validating critical paths.
 
