@@ -1,0 +1,42 @@
+{
+  "name": "kimi-claude-code-optimization",
+  "version": "1.1.0",
+  "updated_at": "2026-02-21",
+  "purpose": "Sanitized operational knowledge base for Kimi + Claude Code + MCP stability and troubleshooting.",
+  "primary_model_target": "kimi-for-coding",
+  "domains": [
+    "claude-code",
+    "kimi",
+    "mcp",
+    "operations",
+    "troubleshooting"
+  ],
+  "known_issues": [
+    {
+      "id": "kimi-toolsearch-400",
+      "title": "ToolSearch tool_reference path can trigger HTTP 400",
+      "symptom": "API Error: 400 invalid_request_error",
+      "mitigation": "Disable ToolSearch for this workflow or use strict allowed-tools"
+    }
+  ],
+  "behavior_guards": [
+    {
+      "id": "sor-scope-file-case",
+      "rule": "Do not touch input/File case/ for generic SOR upload unless user explicitly requests file case flow."
+    }
+  ],
+  "docs": {
+    "overview": "README.md",
+    "state_snapshot": "docs/README.md",
+    "lessons": "docs/LESSONS.md",
+    "actions_log": "docs/ACTIONS_LOG.md",
+    "backups": "docs/BACKUPS.md",
+    "release_notes": "RELEASE_NOTES.md",
+    "agent_instructions": "AGENTS.md",
+    "llm_index": "llms.txt"
+  },
+  "safety": {
+    "contains_secrets": false,
+    "paths_sanitized_with_home_placeholder": true
+  }
+}

@@ -1,0 +1,25 @@
+# Kimi Claude Code Optimization - LLM Index
+
+Summary:
+Public, sanitized operational handbook for running kimi-for-coding with Claude Code in MCP-heavy workflows.
+
+Primary docs:
+- README.md
+- docs/README.md
+- docs/LESSONS.md
+- docs/ACTIONS_LOG.md
+- docs/BACKUPS.md
+- AGENTS.md
+- RELEASE_NOTES.md
+- agent-manifest.json
+
+Key facts:
+- Target runtime model: kimi-for-coding
+- Known compatibility issue: ToolSearch -> tool_reference can trigger HTTP 400
+- Verified mitigation: disable ToolSearch for this workflow
+- SOR upload scope guard: do not use File case path unless explicitly requested
+
+Intended use:
+- Troubleshooting reference
+- Operational playbook
+- Agent-readable context for AI tooling

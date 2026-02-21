@@ -4,6 +4,8 @@ Last updated: 2026-02-21
 
 This folder records the Kimi setup, backups, and troubleshooting notes for your local CLI setup.
 
+> Note: Paths are sanitized and may reference `$HOME` placeholders from the source environment snapshot.
+
 ## Current Effective State
 
 - `claude auth status`: logged out (`loggedIn: false`)
