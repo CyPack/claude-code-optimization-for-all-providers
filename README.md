@@ -11,7 +11,7 @@
       <img src="assets/logos/claude-code.svg" alt="Claude Logo" width="44" height="44" />
     </td>
     <td align="center" width="140">
-      <a href="https://www.kimi.com/membership/pricing">
+      <a href="https://www.kimi.com/code/console">
         <img src="assets/logos/kimi.svg" alt="Kimi Logo" width="92" height="31" />
       </a>
     </td>
