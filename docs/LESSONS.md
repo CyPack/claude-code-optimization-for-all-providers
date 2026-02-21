@@ -126,6 +126,29 @@ Date: 2026-02-21
   3. If warning persists in an already-open shell session:
      - `unset ANTHROPIC_API_KEY`
 
+## Lesson 13: Track Official Sources to Prevent Drift
+
+- Symptom: One year later docs/scripts diverge from provider reality.
+- Cause: Settings and endpoint behavior changed upstream without local refresh cycle.
+- Fix:
+  1. Keep `docs/SOURCES.md` as single source registry.
+  2. Re-verify official URLs monthly.
+  3. If any provider requirement changes, update script + docs + release notes together.
+
+## Lesson 14: Ollama Works via Anthropic-Compatible Endpoint
+
+- Symptom: Unclear whether Claude Code can run against local Ollama.
+- Cause: Older assumptions required third-party adapters.
+- Fix:
+  1. Use official Ollama Anthropic compatibility path:
+     - `ANTHROPIC_BASE_URL=http://localhost:11434/anthropic`
+     - `ANTHROPIC_AUTH_TOKEN=ollama`
+  2. Prefer repository switch command:
+     - `cc-provider ollama`
+  3. Validate runtime and local model availability:
+     - `ollama pull <model>`
+     - `cc-provider status`
+
 ## Quick Health Commands
 
 ```bash
@@ -138,4 +161,6 @@ jq '.env.ENABLE_TOOL_SEARCH' $HOME/.claude/settings.json
 claude -p "SOR dosyalarini yukle. File case'e dokunma." --dangerously-skip-permissions
 jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_BASE_URL}' $HOME/.claude/settings.local.json
 jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_API_KEY_set: has("ANTHROPIC_API_KEY"), ANTHROPIC_BASE_URL}' $HOME/.claude/settings.local.json
+ollama --version
+cc-provider ollama
 ```

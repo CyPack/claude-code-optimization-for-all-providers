@@ -21,6 +21,7 @@ Installed commands:
 - `cc-claude`
 - `cc-mini`
 - `cc-minimax`
+- `cc-ollama`
 
 ## Option B: One-Command Install (Remote)
 
@@ -60,6 +61,7 @@ Switch examples:
 cc-provider kimi
 cc-provider claude
 cc-provider minimax
+cc-provider ollama
 ```
 
 Output behavior:
@@ -71,7 +73,7 @@ Output behavior:
 
 Any CLI/agent can call these commands directly. Recommended minimal protocol:
 
-1. Run one switch command (`kimi`, `claude`, `minimax`).
+1. Run one switch command (`kimi`, `claude`, `minimax`, `ollama`).
 2. Run `cc-provider status` immediately.
 3. Parse and log profile/model/toolsearch state.
 
@@ -82,7 +84,8 @@ rm -f "$HOME/.local/bin/cc-provider" \
       "$HOME/.local/bin/cc-kimi" \
       "$HOME/.local/bin/cc-claude" \
       "$HOME/.local/bin/cc-mini" \
-      "$HOME/.local/bin/cc-minimax"
+      "$HOME/.local/bin/cc-minimax" \
+      "$HOME/.local/bin/cc-ollama"
 ```
 
 ## Security Notes
@@ -91,3 +94,8 @@ rm -f "$HOME/.local/bin/cc-provider" \
 - The switch tool only reads/writes your local `~/.claude` config files.
 - Backups are auto-created at each switch under:
   - `$HOME/.claude/backups/provider-switch-YYYYmmdd-HHMMSS-XXXXXX/`
+
+## Reference Registry
+
+- For provider source-of-truth links and update cadence:
+  - `docs/SOURCES.md`

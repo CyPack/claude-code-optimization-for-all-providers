@@ -1,8 +1,8 @@
 {
   "name": "claude-code-optimization-for-opensource-providers",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "updated_at": "2026-02-21",
-  "purpose": "Sanitized operational knowledge base for Kimi + Claude Code + MCP stability and troubleshooting.",
+  "purpose": "Sanitized operational knowledge base for Kimi + MiniMax + Ollama + Claude Code + MCP stability and troubleshooting.",
   "primary_model_target": "kimi-for-coding",
   "domains": [
     "claude-code",
@@ -11,7 +11,8 @@
     "operations",
     "troubleshooting",
     "profile-switching",
-    "minimax"
+    "minimax",
+    "ollama"
   ],
   "known_issues": [
     {
@@ -36,6 +37,8 @@
     "state_snapshot": "docs/README.md",
     "lessons": "docs/LESSONS.md",
     "actions_log": "docs/ACTIONS_LOG.md",
+    "sources": "docs/SOURCES.md",
+    "ollama_guide": "docs/OLLAMA_CLAUDE_CODE.md",
     "backups": "docs/BACKUPS.md",
     "swarm_optimization": "docs/SWARM_OPTIMIZATION.md",
     "profile_switching": "docs/PROFILE_SWITCHING.md",
@@ -56,7 +59,8 @@
       "scripts/cc-kimi",
       "scripts/cc-claude",
       "scripts/cc-mini",
-      "scripts/cc-minimax"
+      "scripts/cc-minimax",
+      "scripts/cc-ollama"
     ]
   },
   "safety": {

@@ -1,13 +1,15 @@
 # Claude Code Optimization for OpenSource Providers - LLM Index
 
 Summary:
-Public, sanitized operational handbook for running Kimi/Claude/MiniMax provider switching with Claude Code in MCP-heavy workflows.
+Public, sanitized operational handbook for running Kimi/Claude/MiniMax/Ollama provider switching with Claude Code in MCP-heavy workflows.
 
 Primary docs:
 - README.md
 - docs/README.md
 - docs/LESSONS.md
 - docs/ACTIONS_LOG.md
+- docs/SOURCES.md
+- docs/OLLAMA_CLAUDE_CODE.md
 - docs/BACKUPS.md
 - docs/SWARM_OPTIMIZATION.md
 - docs/PROFILE_SWITCHING.md
@@ -20,7 +22,7 @@ Key facts:
 - Target runtime model: kimi-for-coding
 - Known compatibility issue: ToolSearch -> tool_reference can trigger HTTP 400
 - Verified mitigation: disable ToolSearch for this workflow
-- One-command profile switch: cc-provider (kimi/claude/minimax/status)
+- One-command profile switch: cc-provider (kimi/claude/minimax/ollama/status)
 - Switch is idempotent and prints previous -> current provider/API summary
 - One-command install available via install-from-github.sh (curl/wget)
 - README now includes logo-based visual onboarding (Claude/Kimi/MiniMax/Ollama)

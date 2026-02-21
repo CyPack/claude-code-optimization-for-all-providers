@@ -1,6 +1,6 @@
 # Profile Switching Guide
 
-This guide documents the safe toggle flow between Kimi, Claude, and MiniMax in Claude Code.
+This guide documents the safe toggle flow between Kimi, Claude, MiniMax, and Ollama in Claude Code.
 
 ## Goals
 
@@ -18,6 +18,7 @@ This guide documents the safe toggle flow between Kimi, Claude, and MiniMax in C
   - `$HOME/.local/bin/cc-claude`
   - `$HOME/.local/bin/cc-mini`
   - `$HOME/.local/bin/cc-minimax`
+  - `$HOME/.local/bin/cc-ollama`
 
 Install references:
 
@@ -33,6 +34,7 @@ cc-provider kimi
 cc-provider claude
 cc-provider minimax
 cc-provider mini
+cc-provider ollama
 ```
 
 ## Built-in Notifications
@@ -57,7 +59,7 @@ cc-provider mini
 - Backup path:
   - `$HOME/.claude/backups/provider-switch-YYYYmmdd-HHMMSS-XXXXXX/`
 - Saves Kimi key/base URL into:
-  - Provider-specific profile stash (`kimi` or `minimax`) with permission `0600`
+  - Provider-specific profile stash (`kimi`, `minimax`, or `ollama`) with permission `0600`
 - Updates active config:
   - `model = sonnet`
   - `ENABLE_TOOL_SEARCH = auto:1`
@@ -96,6 +98,25 @@ cc-provider mini
   - Legacy `https://api.minimax.chat/v1` entries are auto-migrated to the new default URL
   - Re-enables `ToolSearch` in permissions
 
+### `cc-provider ollama`
+
+- Backs up the same files with a new timestamp.
+- Restores Ollama credentials from active config or Ollama profile stash.
+- Updates active config:
+  - `model = qwen3-coder` (override via `OLLAMA_MODEL`)
+  - `ENABLE_TOOL_SEARCH = auto:1`
+  - `API_TIMEOUT_MS = 3000000`
+  - `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1`
+  - `ANTHROPIC_MODEL = qwen3-coder`
+  - `ANTHROPIC_SMALL_FAST_MODEL = qwen3-coder`
+  - `ANTHROPIC_DEFAULT_HAIKU_MODEL = qwen3-coder`
+  - `ANTHROPIC_DEFAULT_SONNET_MODEL = qwen3-coder`
+  - `ANTHROPIC_DEFAULT_OPUS_MODEL = qwen3-coder`
+  - `CLAUDE_CODE_SUBAGENT_MODEL = qwen3-coder`
+  - `ANTHROPIC_AUTH_TOKEN = ollama` (override via `OLLAMA_AUTH_TOKEN_DEFAULT`)
+  - `ANTHROPIC_BASE_URL = http://localhost:11434/anthropic` (override via `OLLAMA_BASE_URL_DEFAULT`)
+  - Re-enables `ToolSearch` in permissions
+
 ## Validation
 
 ```bash
@@ -111,7 +132,22 @@ claude auth status
   - Re-auth with your Kimi flow or set `ANTHROPIC_API_KEY` in local settings.
 - If `cc-provider minimax` warns about missing token:
   - Set `ANTHROPIC_AUTH_TOKEN` (MiniMax API key) in local settings and retry.
+- If `cc-provider ollama` works but requests fail:
+  - Ensure `ollama serve` is running and your model is pulled (`ollama pull qwen3-coder`).
 - If Claude auth is needed after switching:
   - Run `claude /login`.
 - If anything breaks:
   - Restore latest files from `$HOME/.claude/backups/provider-switch-*`.
+
+## Source References
+
+- Claude Code settings docs:
+  - https://docs.anthropic.com/en/docs/claude-code/settings
+- MiniMax Claude Code docs:
+  - https://platform.minimax.io/docs/coding-plan/claude-code
+- Ollama Anthropic compatibility docs:
+  - https://docs.ollama.com/openai#anthropic-compatibility
+- Ollama Claude Code integration docs:
+  - https://docs.ollama.com/integrations/claude-code
+- Full source registry for this repo:
+  - `docs/SOURCES.md`

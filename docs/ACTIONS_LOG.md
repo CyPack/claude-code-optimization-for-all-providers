@@ -80,7 +80,7 @@ Date: 2026-02-21
 30. Fixed provider-guess false positive after Claude switch:
     - clear MiniMax model-pin env vars when switching to `claude`
 31. Added README official provider links block and logo click-through links:
-    - Kimi logo -> Kimi pricing
+    - Kimi logo -> Kimi code console
     - MiniMax logo -> MiniMax coding plan
 32. Fixed MiniMax auth-conflict recurrence on profile switch:
     - Root cause: stale `ANTHROPIC_API_KEY` persisted beside `ANTHROPIC_AUTH_TOKEN`
@@ -89,6 +89,16 @@ Date: 2026-02-21
 33. Renamed project scope from "all providers" to "opensource providers":
     - Updated repository title strings and installer/raw URLs
     - Updated references to new slug `claude-code-optimization-for-opensource-providers`
+34. Added source governance for long-term maintenance:
+    - New `docs/SOURCES.md` with official provider/documentation links
+    - Added update cadence and change protocol
+35. Added Ollama provider switching support to `cc-provider`:
+    - New command: `cc-provider ollama`
+    - New alias: `cc-ollama`
+    - Defaults: `OLLAMA_MODEL=qwen3-coder`, `http://localhost:11434/anthropic`, token `ollama`
+36. Added dedicated Ollama integration documentation:
+    - `docs/OLLAMA_CLAUDE_CODE.md`
+    - Updated top-level README and install/profile docs for Ollama flow
 
 ## Important Notes
 

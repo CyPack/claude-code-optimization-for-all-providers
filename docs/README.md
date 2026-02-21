@@ -47,7 +47,12 @@ This folder records the Kimi setup, backups, and troubleshooting notes for your 
 - `$HOME/kimi-ops/LESSONS.md`
 - `$HOME/kimi-ops/SWARM_OPTIMIZATION.md`
 
-## Fast Provider Switching (Kimi <-> Claude <-> MiniMax)
+Additional repository docs:
+
+- `docs/SOURCES.md` (official source registry + update cadence)
+- `docs/OLLAMA_CLAUDE_CODE.md` (Ollama integration guide)
+
+## Fast Provider Switching (Kimi <-> Claude <-> MiniMax <-> Ollama)
 
 - Script: `$HOME/.local/bin/cc-provider` (repo source: `scripts/cc-provider`)
 - Install:
@@ -59,11 +64,13 @@ This folder records the Kimi setup, backups, and troubleshooting notes for your 
   - `cc-provider kimi`
   - `cc-provider claude`
   - `cc-provider minimax` (or `cc-provider mini`)
+  - `cc-provider ollama`
 - Convenience aliases:
   - `cc-kimi`
   - `cc-claude`
   - `cc-mini`
   - `cc-minimax`
+  - `cc-ollama`
 
 Behavior guarantees:
 - On every switch, backups are saved under:
@@ -85,6 +92,12 @@ Behavior guarantees:
   - Uses `ANTHROPIC_AUTH_TOKEN` as primary credential var (fallback compatible with `ANTHROPIC_API_KEY`)
   - Keeps `ToolSearch` enabled
   - Restores saved MiniMax secrets from profile stash if available
+- Switching to `ollama`:
+  - Applies `qwen3-coder` model pins (configurable via `OLLAMA_MODEL`)
+  - Applies Ollama Anthropic-compatible URL default (`http://localhost:11434/anthropic`, configurable via `OLLAMA_BASE_URL_DEFAULT`)
+  - Applies default auth token `ollama` (configurable via `OLLAMA_AUTH_TOKEN_DEFAULT`)
+  - Keeps `ToolSearch` enabled
+  - Restores saved Ollama URL/token from profile stash if available
 
 ## Stable Runtime Patterns (Kimi)
 

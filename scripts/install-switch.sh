@@ -11,6 +11,7 @@ FILES=(
   "cc-claude"
   "cc-mini"
   "cc-minimax"
+  "cc-ollama"
 )
 
 mkdir -p "$INSTALL_DIR"
@@ -34,7 +35,7 @@ done
 cat <<MSG
 Switch scripts installed.
 - Install dir: $INSTALL_DIR
-- Commands: cc-provider, cc-kimi, cc-claude, cc-mini, cc-minimax
+- Commands: cc-provider, cc-kimi, cc-claude, cc-mini, cc-minimax, cc-ollama
 MSG
 
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then

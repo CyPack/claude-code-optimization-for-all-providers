@@ -9,12 +9,17 @@ BACKUPS_DIR="$CLAUDE_DIR/backups"
 
 KIMI_SECRETS_FILE="$PROFILES_DIR/kimi-secrets.json"
 MINIMAX_SECRETS_FILE="$PROFILES_DIR/minimax-secrets.json"
+OLLAMA_SECRETS_FILE="$PROFILES_DIR/ollama-secrets.json"
 
 KIMI_MODEL="${KIMI_MODEL:-kimi-for-coding}"
 KIMI_BASE_URL_DEFAULT="${KIMI_BASE_URL_DEFAULT:-https://api.kimi.com/coding/}"
 
 MINIMAX_MODEL="${MINIMAX_MODEL:-MiniMax-M2.5}"
 MINIMAX_BASE_URL_DEFAULT="${MINIMAX_BASE_URL_DEFAULT:-https://api.minimax.io/anthropic}"
+
+OLLAMA_MODEL="${OLLAMA_MODEL:-qwen3-coder}"
+OLLAMA_BASE_URL_DEFAULT="${OLLAMA_BASE_URL_DEFAULT:-http://localhost:11434/anthropic}"
+OLLAMA_AUTH_TOKEN_DEFAULT="${OLLAMA_AUTH_TOKEN_DEFAULT:-ollama}"
 
 print_usage() {
   cat <<'USAGE'
@@ -24,11 +29,14 @@ Usage:
   cc-provider claude
   cc-provider minimax
   cc-provider mini
+  cc-provider ollama
 
 Aliases:
   cc-kimi
   cc-claude
   cc-mini
+  cc-minimax
+  cc-ollama
 USAGE
 }
 
@@ -126,6 +134,11 @@ current_provider_guess() {
     return 0
   fi
 
+  if [[ "$model" == "$OLLAMA_MODEL" || "$model_pin" == "$OLLAMA_MODEL" ]] || [[ "$base_url" == *"11434/anthropic"* ]]; then
+    echo "ollama"
+    return 0
+  fi
+
   if [[ "$model" == "sonnet" || "$model" == "opus" || "$model" == "haiku" || "$model" == claude-* ]]; then
     echo "claude"
     return 0
@@ -219,6 +232,9 @@ save_active_provider_secrets() {
     ;;
   minimax)
     stash_secrets "$MINIMAX_SECRETS_FILE" "$auth_token" "$base_url"
+    ;;
+  ollama)
+    stash_secrets "$OLLAMA_SECRETS_FILE" "$auth_token" "$base_url"
     ;;
   *)
     ;;
@@ -461,6 +477,89 @@ MSG
   print_transition_notice "$previous_provider" "$previous_base_url"
 }
 
+switch_to_ollama() {
+  mkdir -p "$CLAUDE_DIR"
+  ensure_json_file "$SETTINGS_FILE"
+  ensure_json_file "$LOCAL_FILE"
+
+  local previous_provider
+  local previous_model
+  local previous_base_url
+  local backup_dir
+  local current_provider
+  local auth_token
+  local base_url
+
+  previous_provider="$(current_provider_guess)"
+  previous_model="$(current_model)"
+  previous_base_url="$(active_base_url)"
+
+  if [[ "$previous_provider" == "ollama" ]]; then
+    print_already_active_notice "ollama" "$previous_model" "$previous_base_url"
+    return 0
+  fi
+
+  backup_dir="$(backup_current)"
+  current_provider="$(current_provider_guess)"
+
+  save_active_provider_secrets
+
+  if [[ "$current_provider" == "ollama" ]]; then
+    auth_token="$(active_auth_token)"
+    base_url="$(active_base_url)"
+  else
+    auth_token="$(restore_secret "$OLLAMA_SECRETS_FILE" "ANTHROPIC_AUTH_TOKEN")"
+    if [[ -z "$auth_token" ]]; then
+      auth_token="$(restore_secret "$OLLAMA_SECRETS_FILE" "ANTHROPIC_API_KEY")"
+    fi
+    base_url="$(restore_secret "$OLLAMA_SECRETS_FILE" "ANTHROPIC_BASE_URL")"
+  fi
+
+  if [[ -z "$base_url" ]]; then
+    base_url="$OLLAMA_BASE_URL_DEFAULT"
+  fi
+
+  if [[ -z "$auth_token" ]]; then
+    auth_token="$OLLAMA_AUTH_TOKEN_DEFAULT"
+  fi
+
+  write_json_args "$LOCAL_FILE" '
+    .env = (.env // {})
+    | .env.ANTHROPIC_BASE_URL = $base_url
+    | .env.ANTHROPIC_AUTH_TOKEN = $auth_token
+    | .env |= with_entries(select(.key != "ANTHROPIC_API_KEY"))
+  ' --arg auth_token "$auth_token" --arg base_url "$base_url"
+
+  write_json_args "$SETTINGS_FILE" '
+    def add_once($x): if index($x) == null then . + [$x] else . end;
+    .model = $model
+    | .env = (.env // {})
+    | .env.ENABLE_TOOL_SEARCH = "auto:1"
+    | .env.API_TIMEOUT_MS = "3000000"
+    | .env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+    | .env.ANTHROPIC_MODEL = $model
+    | .env.ANTHROPIC_SMALL_FAST_MODEL = $model
+    | .env.ANTHROPIC_DEFAULT_HAIKU_MODEL = $model
+    | .env.ANTHROPIC_DEFAULT_SONNET_MODEL = $model
+    | .env.ANTHROPIC_DEFAULT_OPUS_MODEL = $model
+    | .env.CLAUDE_CODE_SUBAGENT_MODEL = $model
+    | .permissions = (.permissions // {})
+    | .permissions.allow = ((.permissions.allow // []) | add_once("ToolSearch"))
+    | .permissions.deny = ((.permissions.deny // []) | map(select(. != "ToolSearch")))
+  ' --arg model "$OLLAMA_MODEL"
+
+  cat <<MSG
+Switched to Ollama profile.
+Backup: $backup_dir
+Notes:
+- Ollama Anthropic-compatible base URL and auth token were applied.
+- Default model pin: $OLLAMA_MODEL (override with OLLAMA_MODEL before switching).
+- Ensure Ollama is running and model is available (e.g. ollama pull $OLLAMA_MODEL).
+MSG
+
+  print_transition_notice "$previous_provider" "$previous_base_url"
+}
+
 status() {
   ensure_json_file "$SETTINGS_FILE"
   ensure_json_file "$LOCAL_FILE"
@@ -497,6 +596,7 @@ Provider Status
 - settings local: $LOCAL_FILE
 - kimi secrets stash: $KIMI_SECRETS_FILE
 - minimax secrets stash: $MINIMAX_SECRETS_FILE
+- ollama secrets stash: $OLLAMA_SECRETS_FILE
 MSG
 
   if command -v claude >/dev/null 2>&1; then
@@ -526,6 +626,9 @@ main() {
     ;;
   minimax|mini)
     switch_to_minimax
+    ;;
+  ollama)
+    switch_to_ollama
     ;;
   -h|--help|help)
     print_usage

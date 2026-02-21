@@ -47,6 +47,10 @@
 - MiniMax Claude Code Docs: `https://platform.minimax.io/docs/coding-plan/claude-code`
 - Kimi Pricing (Coding access): `https://www.kimi.com/membership/pricing`
 - Kimi Code Console: `https://www.kimi.com/code/console`
+- Ollama Anthropic Compatibility: `https://docs.ollama.com/openai#anthropic-compatibility`
+- Ollama Claude Code Integration: `https://docs.ollama.com/integrations/claude-code`
+- Ollama Claude Code Launch Post: `https://ollama.com/blog/claude-code`
+- Ollama GitHub Repository: `https://github.com/ollama/ollama`
 
 ## Why This Repo
 
@@ -76,6 +80,7 @@ cc-provider status
 cc-provider kimi
 cc-provider claude
 cc-provider minimax
+cc-provider ollama
 ```
 
 MiniMax first-time setup (official Claude Code flow):
@@ -94,6 +99,7 @@ cc-kimi
 cc-claude
 cc-mini
 cc-minimax
+cc-ollama
 ```
 
 ## Human-Friendly Behavior
@@ -110,7 +116,7 @@ cc-minimax
 
 Agents should follow this protocol:
 
-1. Run `cc-provider <kimi|claude|minimax>`.
+1. Run `cc-provider <kimi|claude|minimax|ollama>`.
 2. Run `cc-provider status`.
 3. Return profile, model, ToolSearch state, and transition summary.
 4. If API/auth token warning appears, report warning without inventing credentials.
@@ -122,6 +128,8 @@ Agents should follow this protocol:
 - `docs/README.md`: operational state snapshot
 - `docs/LESSONS.md`: troubleshooting patterns
 - `docs/ACTIONS_LOG.md`: chronological change evidence
+- `docs/SOURCES.md`: source registry for future updates
+- `docs/OLLAMA_CLAUDE_CODE.md`: Ollama + Claude Code integration guide
 - `docs/BACKUPS.md`: backup and restore references
 - `docs/SWARM_OPTIMIZATION.md`: Kimi-specific orchestration notes
 - `scripts/cc-provider`: main switch utility
@@ -144,4 +152,5 @@ Agents should follow this protocol:
 - Kimi profile defaults to ToolSearch disabled for known compatibility reasons.
 - MiniMax profile keeps ToolSearch enabled by default.
 - MiniMax profile defaults to `MiniMax-M2.5` and `https://api.minimax.io/anthropic`.
+- Ollama profile defaults to `qwen3-coder` and `http://localhost:11434/anthropic`.
 - Claude profile removes active API-key/auth-token routing vars to reduce auth conflicts.

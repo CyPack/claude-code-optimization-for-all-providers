@@ -1,5 +1,24 @@
 # Release Notes
 
+## v1.8.0 - 2026-02-21
+
+### Added
+
+- Official source registry:
+  - `docs/SOURCES.md`
+- Ollama integration guide:
+  - `docs/OLLAMA_CLAUDE_CODE.md`
+- Ollama switch support:
+  - `cc-provider ollama`
+  - `cc-ollama` alias
+
+### Changed
+
+- Project naming updated to OpenSource Providers scope.
+- `scripts/cc-provider` now supports `Kimi <-> Claude <-> MiniMax <-> Ollama`.
+- Installer scripts include `cc-ollama`.
+- Top-level and operational docs now include reference-backed update workflow.
+
 ## v1.7.0 - 2026-02-21
 
 ### Changed
