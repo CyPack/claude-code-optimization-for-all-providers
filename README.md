@@ -5,15 +5,28 @@
   Kimi • Claude • MiniMax • Ollama-aware workflows with credential-safe setup.
 </p>
 
-<p align="center">
-  <img src="assets/logos/claude-code.svg" alt="Claude Code / Anthropic Logo" width="56" height="56" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="assets/logos/kimi.svg" alt="Kimi Logo" width="220" height="74" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="assets/logos/minimax.svg" alt="MiniMax Logo" width="56" height="56" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="assets/logos/ollama.svg" alt="Ollama Logo" width="56" height="56" />
-</p>
+<table align="center">
+  <tr>
+    <td align="center" width="120">
+      <img src="assets/logos/claude-code.svg" alt="Claude Logo" width="44" height="44" />
+    </td>
+    <td align="center" width="140">
+      <img src="assets/logos/kimi.svg" alt="Kimi Logo" width="92" height="31" />
+    </td>
+    <td align="center" width="120">
+      <img src="assets/logos/minimax.svg" alt="MiniMax Logo" width="44" height="44" />
+    </td>
+    <td align="center" width="120">
+      <img src="assets/logos/ollama.svg" alt="Ollama Logo" width="44" height="44" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><sub><strong>Claude</strong></sub></td>
+    <td align="center"><sub><strong>Kimi</strong></sub></td>
+    <td align="center"><sub><strong>MiniMax</strong></sub></td>
+    <td align="center"><sub><strong>Ollama</strong></sub></td>
+  </tr>
+</table>
 
 <p align="center">
   <a href="https://github.com/CyPack/claude-code-optimization-for-all-providers/blob/main/docs/INSTALLATION.md">Install Guide</a>
