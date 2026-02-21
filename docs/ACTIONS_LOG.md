@@ -82,6 +82,13 @@ Date: 2026-02-21
 31. Added README official provider links block and logo click-through links:
     - Kimi logo -> Kimi pricing
     - MiniMax logo -> MiniMax coding plan
+32. Fixed MiniMax auth-conflict recurrence on profile switch:
+    - Root cause: stale `ANTHROPIC_API_KEY` persisted beside `ANTHROPIC_AUTH_TOKEN`
+    - Patch: remove `ANTHROPIC_API_KEY` when setting MiniMax auth token
+    - Verification: `ANTHROPIC_AUTH_TOKEN` present, `ANTHROPIC_API_KEY` absent, smoke test passes
+33. Renamed project scope from "all providers" to "opensource providers":
+    - Updated repository title strings and installer/raw URLs
+    - Updated references to new slug `claude-code-optimization-for-opensource-providers`
 
 ## Important Notes
 

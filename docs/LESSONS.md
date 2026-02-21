@@ -112,6 +112,20 @@ Date: 2026-02-21
      - `CLAUDE_CODE_SUBAGENT_MODEL`
   2. Re-run `cc-provider status` and verify active profile guess is `claude`
 
+## Lesson 12: MiniMax Switch Must Remove Legacy `ANTHROPIC_API_KEY`
+
+- Symptom: Claude Code shows:
+  `Auth conflict: Both a token (ANTHROPIC_AUTH_TOKEN) and an API key (ANTHROPIC_API_KEY) are set`
+- Cause: During MiniMax switch, `ANTHROPIC_AUTH_TOKEN` was set but stale `ANTHROPIC_API_KEY` stayed in active local env.
+- Fix:
+  1. In `switch_to_minimax()`, when token exists:
+     - set `.env.ANTHROPIC_AUTH_TOKEN`
+     - remove `.env.ANTHROPIC_API_KEY`
+  2. Verify with:
+     - `jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_API_KEY_set: has("ANTHROPIC_API_KEY")}' ~/.claude/settings.local.json`
+  3. If warning persists in an already-open shell session:
+     - `unset ANTHROPIC_API_KEY`
+
 ## Quick Health Commands
 
 ```bash
@@ -123,4 +137,5 @@ jq '.permissions | {allow, deny}' $HOME/.claude/settings.json
 jq '.env.ENABLE_TOOL_SEARCH' $HOME/.claude/settings.json
 claude -p "SOR dosyalarini yukle. File case'e dokunma." --dangerously-skip-permissions
 jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_BASE_URL}' $HOME/.claude/settings.local.json
+jq '.env | {ANTHROPIC_AUTH_TOKEN_set: has("ANTHROPIC_AUTH_TOKEN"), ANTHROPIC_API_KEY_set: has("ANTHROPIC_API_KEY"), ANTHROPIC_BASE_URL}' $HOME/.claude/settings.local.json
 ```
