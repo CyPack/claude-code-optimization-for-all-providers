@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="64" viewBox="0 0 180 64" role="img" aria-labelledby="title desc">
+  <title id="title">Kimi Logo Card</title>
+  <desc id="desc">Renkli Kimi etiketi</desc>
+  <defs>
+    <linearGradient id="kimi-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A8DFF"/>
+      <stop offset="100%" stop-color="#00C6B8"/>
+    </linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="177" height="61" rx="14" fill="url(#kimi-bg)" stroke="#1B66D4" stroke-width="3"/>
+  <circle cx="30" cy="32" r="18" fill="#FFFFFF" fill-opacity="0.22"/>
+  <text x="30" y="38" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF">K</text>
+  <text x="58" y="38" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">Kimi</text>
+</svg>
